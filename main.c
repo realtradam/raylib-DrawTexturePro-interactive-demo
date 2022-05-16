@@ -50,19 +50,21 @@ int fontSpacing = 0;
 char codePreviewArray[21][66] = {
 	"DrawTexturePro(",
 	"			texture,",
-	"			(Rectangle) {",
+	"			(Rectangle) { // Source Rectangle",
 	"","","","", // 3-6 are filled out dynamically
-	"			}, // in the texture space",
-	"			(Rectangle) {",
+	"			},",
+	"			(Rectangle) { // Dest Rectangle",
 	"","","","", // 9-12 are filled out dynamically
-	"			}, // in the screen space",
-	"			(Vector2) {",
+	"			},",
+	"			(Vector2) { // Origin",
 	"","", // 15-16 are filled out dynamically
-	"			}, // relative to 'dest' rectangle",
+	"			},",
 	"", // 18 is filled out dynamically
 	"			WHITE",
 	");"
 };
+int i = 0;
+Color codePreviewHighlight[21];
 
 // dtp mean draw texture pro
 Rectangle dtpSource = {
@@ -107,6 +109,11 @@ int main()
 	sourceCodeFont = LoadFontEx("assets/LiberationMono-Regular.ttf", fontSize, 0, 250);
 	GuiSetFont(sourceCodeFont);
 
+	for(i = 0; i < 21; i += 1) {
+		codePreviewHighlight[i] = BEIGE;
+		codePreviewHighlight[i].a = 0;
+	}
+
 	previewElementPre = LoadRenderTexture(
 			elementRender.width - 20,
 			elementRender.height - 20
@@ -140,9 +147,9 @@ void DrawElementBorders() {
 			.x = 0,
 			.y = 0,
 			.width = screenWidth,
-			.height = screenHeight + 5
+			.height = screenHeight + 2
 			},
-			"DrawTexturePro Experimenter"
+			"DrawTexturePro Interactive Demo"
 			);
 	GuiGroupBox(
 			elementSliders,
@@ -201,6 +208,12 @@ void DrawUI() {
 			},
 			"Source"
 			);
+	Rectangle tempSource = dtpSource;
+	Rectangle tempDest = dtpDest;
+	Vector2 tempOrigin = dtpOrigin;
+	int tempRotation = dtpRotation;
+
+
 	sprintf(buffer, "%d", (int)dtpSource.x),
 		dtpSource.x = GuiSlider(
 				(Rectangle) {
@@ -215,6 +228,9 @@ void DrawUI() {
 				-192,
 				192
 				);
+	if (tempSource.x != dtpSource.x) {
+		codePreviewHighlight[3].a = 255;
+	}
 	sprintf(buffer, "%d", (int)dtpSource.y),
 		dtpSource.y = GuiSlider(
 				(Rectangle) {
@@ -229,6 +245,9 @@ void DrawUI() {
 				-192,
 				192
 				);
+	if (tempSource.y != dtpSource.y) {
+		codePreviewHighlight[4].a = 255;
+	}
 	sprintf(buffer, "%d", (int)dtpSource.width),
 		dtpSource.width = GuiSlider(
 				(Rectangle) {
@@ -243,6 +262,9 @@ void DrawUI() {
 				-192,
 				192
 				);
+	if (tempSource.width != dtpSource.width) {
+		codePreviewHighlight[5].a = 255;
+	}
 	sprintf(buffer, "%d", (int)dtpSource.height),
 		dtpSource.height = GuiSlider(
 				(Rectangle) {
@@ -257,6 +279,9 @@ void DrawUI() {
 				-192,
 				192
 				);
+	if (tempSource.height != dtpSource.height) {
+		codePreviewHighlight[6].a = 255;
+	}
 
 
 	xOffset = 150 + sliderWidth;
@@ -283,6 +308,9 @@ void DrawUI() {
 				-192,
 				192
 				);
+	if (tempDest.x != dtpDest.x) {
+		codePreviewHighlight[9].a = 255;
+	}
 	sprintf(buffer, "%d", (int)dtpDest.y),
 		dtpDest.y = GuiSlider(
 				(Rectangle) {
@@ -297,6 +325,9 @@ void DrawUI() {
 				-192,
 				192
 				);
+	if (tempDest.y != dtpDest.y) {
+		codePreviewHighlight[10].a = 255;
+	}
 	sprintf(buffer, "%d", (int)dtpDest.width),
 		dtpDest.width = GuiSlider(
 				(Rectangle) {
@@ -311,6 +342,9 @@ void DrawUI() {
 				-192,
 				192
 				);
+	if (tempDest.width != dtpDest.width) {
+		codePreviewHighlight[11].a = 255;
+	}
 	sprintf(buffer, "%d", (int)dtpDest.height),
 		dtpDest.height = GuiSlider(
 				(Rectangle) {
@@ -325,6 +359,9 @@ void DrawUI() {
 				-192,
 				192
 				);
+	if (tempDest.height != dtpDest.height) {
+		codePreviewHighlight[12].a = 255;
+	}
 
 	xOffset = 425 + sliderWidth;
 	GuiLabel(
@@ -350,6 +387,9 @@ void DrawUI() {
 				-192,
 				192
 				);
+	if (tempOrigin.x != dtpOrigin.x) {
+		codePreviewHighlight[15].a = 255;
+	}
 	sprintf(buffer, "%d", (int)dtpOrigin.y),
 		dtpOrigin.y = GuiSlider(
 				(Rectangle) {
@@ -364,6 +404,9 @@ void DrawUI() {
 				-192,
 				192
 				);
+	if (tempOrigin.y != dtpOrigin.y) {
+		codePreviewHighlight[16].a = 255;
+	}
 
 	yOffset = 40 + 15 + elementSliders.y + sliderHeight + sliderSpacing,
 			GuiLabel(
@@ -389,6 +432,9 @@ void DrawUI() {
 				-360,
 				360
 				);
+	if (tempRotation != dtpRotation) {
+		codePreviewHighlight[18].a = 255;
+	}
 
 };
 void DrawCodeDisplay() {};
@@ -472,17 +518,17 @@ void DrawOutput() {
 			2,
 			RED
 			);
-		DrawTextEx(
-				sourceCodeFont,
-				"Source",
-				(Vector2) {
-				.x = sourceRect.x,
-				.y = sourceRect.y - fontSize + 1
-				},
-				fontSize,
-				fontSpacing,
-				RED
-				);
+	DrawTextEx(
+			sourceCodeFont,
+			"Source",
+			(Vector2) {
+			.x = sourceRect.x,
+			.y = sourceRect.y - fontSize + 1
+			},
+			fontSize,
+			fontSpacing,
+			RED
+			);
 	EndTextureMode();
 	DrawTexturePro(
 			previewElementPre.texture,
@@ -628,7 +674,13 @@ void DrawOutput() {
 	sprintf(codePreviewArray[12], "						.height = %d.0f", (int)dtpDest.height);
 	sprintf(codePreviewArray[15], "						.x = %d.0f,", (int)dtpOrigin.x);
 	sprintf(codePreviewArray[16], "						.y = %d.0f,", (int)dtpOrigin.y);
-	sprintf(codePreviewArray[18], "			%d, // rotation", (int)dtpRotation);
+	sprintf(codePreviewArray[18], "			%d, // Rotation", (int)dtpRotation);
+
+	for(i = 0; i < 21; i += 1) {
+		if (codePreviewHighlight[i].a > 0) {
+			codePreviewHighlight[i].a -= 5;
+		}
+	}
 
 	for(int b = 0; b < 21; b += 1) {
 		Color tempColor = BLACK;
@@ -636,6 +688,13 @@ void DrawOutput() {
 		else if((b > 7) && (b < 14)) { tempColor = DARKGREEN; }
 		else if((b > 13) && (b < 18)) { tempColor = BLUE; }
 		else if(b == 18) { tempColor = DARKPURPLE; }
+		DrawRectangle(
+				0 + 20,
+				elementCode.y + 15 + ((fontSize + 1) * b) - 1,
+				previewElementResult.texture.width,
+				fontSize+1,
+				codePreviewHighlight[b]
+				);
 		DrawTextEx(
 				sourceCodeFont,
 				codePreviewArray[b],
