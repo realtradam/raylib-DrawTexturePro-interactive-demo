@@ -1,0 +1,8 @@
+# Raylib DrawTexturePro Interactive Demo
+
+[![MIT License](https://img.shields.io/github/license/realtradam/raylib-DrawTexturePro-interactive-demo)](https://github.com/realtradam/raylib-DrawTexturePro-interactive-demo/blob/master/LICENSE)
+[![Ko-Fi](https://img.shields.io/static/v1?message=Buy%20me%20a%20coffee&logo=kofi&labelColor=ff5e5b&color=434B57&logoColor=white&label=%20)](https://ko-fi.com/tradam)
+
+A little demo showing what the function parameters of DrawTexturePro in Raylib do and how they work. Check the top of `main.c` for credits.
+
+[Playable Link](https://tradam.itch.io/raylib-drawtexturepro-interactive-demo)
