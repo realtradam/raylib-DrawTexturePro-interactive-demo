@@ -227,8 +227,8 @@ void ResolveMouseState() {
 					(Rectangle) {
 					.x = elementPreRender.x + dtpSource.x + 10 + gridCenter,
 					.y = elementPreRender.y + dtpSource.y + 10 + gridCenter,
-					.width = dtpSource.width,
-					.height = dtpSource.height
+					.width = fabs(dtpSource.width),
+					.height = fabs(dtpSource.height)
 					}
 					)
 		   ) {
@@ -262,8 +262,8 @@ void ResolveMouseState() {
 					(Rectangle) {
 					.x = elementRender.x + dtpDest.x + 10 + gridCenter,
 					.y = elementRender.y + dtpDest.y + 10 + gridCenter,
-					.width = dtpDest.width,
-					.height = dtpDest.height
+					.width = fabs(dtpDest.width),
+					.height = fabs(dtpDest.height)
 					}
 					)
 		   ) {
