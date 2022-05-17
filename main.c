@@ -11,6 +11,9 @@
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+#define CLAMP(val, min, max) MIN(max, MAX(val, min))
 
 const int screenWidth = 900;
 const int screenHeight = 600;
@@ -46,6 +49,8 @@ Font sourceCodeFont;
 int fontSize = 14;
 int fontSpacing = 0;
 
+enum dragStates{Released, HeldSource, HeldDest, HeldOrigin} dragState = Released;
+Vector2 mouseOffset = {.x = 0, .y = 0};
 
 char codePreviewArray[21][66] = {
 	"DrawTexturePro(",
@@ -60,29 +65,33 @@ char codePreviewArray[21][66] = {
 	"","", // 15-16 are filled out dynamically
 	"			},",
 	"", // 18 is filled out dynamically
-	"			WHITE",
+	"			WHITE // Color",
 	");"
 };
 int i = 0;
 Color codePreviewHighlight[21];
 
 // dtp mean draw texture pro
+Rectangle predtpSource;
 Rectangle dtpSource = {
 	.x = 0,
 	.y = 0,
 	.width = 48,
 	.height = 48
 };
+Rectangle predtpDest;
 Rectangle dtpDest = {
 	.x = 0,
 	.y = 0,
 	.width = 96,
 	.height = 96
 };
+Vector2 predtpOrigin;
 Vector2 dtpOrigin = {
 	.x = 0,
 	.y = 0
 };
+int predtpRotation;
 int dtpRotation = 0;
 
 const int gridSize = 20;
@@ -94,7 +103,10 @@ RenderTexture2D previewElementPre;
 RenderTexture2D previewElementResult;
 
 void DrawElementBorders();
+void SetupDifference();
 void DrawUI();
+void ResolveMouseState();
+void CheckDifference();
 void DrawCodeDisplay();
 void DrawOutput();
 
@@ -130,8 +142,11 @@ int main()
 		ClearBackground(RAYWHITE);
 
 		DrawElementBorders();
+		SetupDifference();
 		DrawUI();
+		ResolveMouseState();
 		DrawCodeDisplay();
+		CheckDifference();
 		DrawOutput();
 
 		EndDrawing();
@@ -141,7 +156,8 @@ int main()
 	return 0;
 }
 
-void DrawElementBorders() {
+void DrawElementBorders()
+{
 	GuiPanel(
 			(Rectangle) {
 			.x = 0,
@@ -190,6 +206,106 @@ void DrawElementBorders() {
 			);
 }
 
+
+void SetupDifference() {
+	predtpSource = dtpSource;
+	predtpDest = dtpDest;
+	predtpOrigin = dtpOrigin;
+	predtpRotation = dtpRotation;
+}
+
+
+void ResolveMouseState() {
+	//elementRender elementPreRender
+
+	//if mouse click
+	if (IsMouseButtonPressed(0)) {
+		// Source Square
+		if (
+				CheckCollisionPointRec(
+					GetMousePosition(),
+					(Rectangle) {
+					.x = elementPreRender.x + dtpSource.x + 10 + gridCenter,
+					.y = elementPreRender.y + dtpSource.y + 10 + gridCenter,
+					.width = dtpSource.width,
+					.height = dtpSource.height
+					}
+					)
+		   ) {
+			GuiLock();
+			dragState = HeldSource;
+			mouseOffset = GetMousePosition();
+			mouseOffset.x -= elementPreRender.x + dtpSource.x + 10 + gridCenter;
+			mouseOffset.y -= elementPreRender.y + dtpSource.y + 10 + gridCenter;
+		}
+		// Origin Dot
+		else if (
+				CheckCollisionPointCircle(
+					GetMousePosition(),
+					(Vector2) {
+					.x = elementRender.x - dtpOrigin.x + dtpDest.x + 10 + gridCenter,
+					.y = elementRender.y - dtpOrigin.y + + dtpDest.y + 10 + gridCenter
+					},
+					6
+					)
+				) {
+			GuiLock();
+			dragState = HeldOrigin;
+			mouseOffset = GetMousePosition();
+			mouseOffset.x -= elementRender.x - dtpOrigin.x + (2 * dtpDest.x) + 10 + gridCenter;
+			mouseOffset.y -= elementRender.y - dtpOrigin.y + (2 * dtpDest.y) + 10 + gridCenter;
+		}
+		// Dest Square
+		else if (
+				CheckCollisionPointRec(
+					GetMousePosition(),
+					(Rectangle) {
+					.x = elementRender.x + dtpDest.x + 10 + gridCenter,
+					.y = elementRender.y + dtpDest.y + 10 + gridCenter,
+					.width = dtpDest.width,
+					.height = dtpDest.height
+					}
+					)
+		   ) {
+			GuiLock();
+			dragState = HeldDest;
+			mouseOffset = GetMousePosition();
+			mouseOffset.x -= elementRender.x + dtpDest.x + 10 + gridCenter;
+			mouseOffset.y -= elementRender.y + dtpDest.y + 10 + gridCenter;
+		}
+	}
+	else if (IsMouseButtonDown(0)) {
+		switch (dragState) {
+			case HeldSource :
+			dtpSource.x = CLAMP(-mouseOffset.x + GetMouseX() - (elementPreRender.x + 10 + gridCenter),-192, 192);
+			dtpSource.y = CLAMP(-mouseOffset.y + GetMouseY() - (elementPreRender.y + 10 + gridCenter), -192, 192);
+			break;
+			case HeldOrigin :
+			dtpOrigin.x = CLAMP(-mouseOffset.x - GetMouseX() + (elementRender.x + 10 + gridCenter), -192, 192);
+			dtpOrigin.y = CLAMP(-mouseOffset.y - GetMouseY() + (elementRender.y + 10 + gridCenter), -192, 192);
+			break;
+			case HeldDest :
+			dtpDest.x = CLAMP(-mouseOffset.x + GetMouseX() - (elementRender.x + 10 + gridCenter),-192, 192);
+			dtpDest.y = CLAMP(-mouseOffset.y + GetMouseY() - (elementRender.y + 10 + gridCenter), -192, 192);
+			break;
+			case Released :
+			// shouldn't be possible to reach here
+			break;
+		}
+	}
+
+	else if (IsMouseButtonReleased(0)) {
+		dragState = Released;
+		GuiUnlock();
+	}
+	//if mouse inside square 1, origin, square 2, square 3
+	//	set state to move
+	//if move state
+	//	if inside
+	//	move shape
+	//if mouse let go: reset state
+}
+
 void DrawUI() {
 	//elementSlider.x + elementBorderWidth
 	char buffer[10];
@@ -208,11 +324,6 @@ void DrawUI() {
 			},
 			"Source"
 			);
-	Rectangle tempSource = dtpSource;
-	Rectangle tempDest = dtpDest;
-	Vector2 tempOrigin = dtpOrigin;
-	int tempRotation = dtpRotation;
-
 
 	sprintf(buffer, "%d", (int)dtpSource.x),
 		dtpSource.x = GuiSlider(
@@ -228,9 +339,6 @@ void DrawUI() {
 				-192,
 				192
 				);
-	if (tempSource.x != dtpSource.x) {
-		codePreviewHighlight[3].a = 255;
-	}
 	sprintf(buffer, "%d", (int)dtpSource.y),
 		dtpSource.y = GuiSlider(
 				(Rectangle) {
@@ -245,9 +353,6 @@ void DrawUI() {
 				-192,
 				192
 				);
-	if (tempSource.y != dtpSource.y) {
-		codePreviewHighlight[4].a = 255;
-	}
 	sprintf(buffer, "%d", (int)dtpSource.width),
 		dtpSource.width = GuiSlider(
 				(Rectangle) {
@@ -262,9 +367,6 @@ void DrawUI() {
 				-192,
 				192
 				);
-	if (tempSource.width != dtpSource.width) {
-		codePreviewHighlight[5].a = 255;
-	}
 	sprintf(buffer, "%d", (int)dtpSource.height),
 		dtpSource.height = GuiSlider(
 				(Rectangle) {
@@ -279,9 +381,6 @@ void DrawUI() {
 				-192,
 				192
 				);
-	if (tempSource.height != dtpSource.height) {
-		codePreviewHighlight[6].a = 255;
-	}
 
 
 	xOffset = 150 + sliderWidth;
@@ -308,9 +407,6 @@ void DrawUI() {
 				-192,
 				192
 				);
-	if (tempDest.x != dtpDest.x) {
-		codePreviewHighlight[9].a = 255;
-	}
 	sprintf(buffer, "%d", (int)dtpDest.y),
 		dtpDest.y = GuiSlider(
 				(Rectangle) {
@@ -325,9 +421,6 @@ void DrawUI() {
 				-192,
 				192
 				);
-	if (tempDest.y != dtpDest.y) {
-		codePreviewHighlight[10].a = 255;
-	}
 	sprintf(buffer, "%d", (int)dtpDest.width),
 		dtpDest.width = GuiSlider(
 				(Rectangle) {
@@ -342,9 +435,6 @@ void DrawUI() {
 				-192,
 				192
 				);
-	if (tempDest.width != dtpDest.width) {
-		codePreviewHighlight[11].a = 255;
-	}
 	sprintf(buffer, "%d", (int)dtpDest.height),
 		dtpDest.height = GuiSlider(
 				(Rectangle) {
@@ -359,9 +449,6 @@ void DrawUI() {
 				-192,
 				192
 				);
-	if (tempDest.height != dtpDest.height) {
-		codePreviewHighlight[12].a = 255;
-	}
 
 	xOffset = 425 + sliderWidth;
 	GuiLabel(
@@ -387,9 +474,6 @@ void DrawUI() {
 				-192,
 				192
 				);
-	if (tempOrigin.x != dtpOrigin.x) {
-		codePreviewHighlight[15].a = 255;
-	}
 	sprintf(buffer, "%d", (int)dtpOrigin.y),
 		dtpOrigin.y = GuiSlider(
 				(Rectangle) {
@@ -404,9 +488,7 @@ void DrawUI() {
 				-192,
 				192
 				);
-	if (tempOrigin.y != dtpOrigin.y) {
-		codePreviewHighlight[16].a = 255;
-	}
+	
 
 	yOffset = 40 + 15 + elementSliders.y + sliderHeight + sliderSpacing,
 			GuiLabel(
@@ -432,12 +514,90 @@ void DrawUI() {
 				-360,
 				360
 				);
-	if (tempRotation != dtpRotation) {
+};
+
+void CheckDifference() {
+	if (predtpSource.x != dtpSource.x) {
+		codePreviewHighlight[3].a = 255;
+	}
+	if (predtpSource.y != dtpSource.y) {
+		codePreviewHighlight[4].a = 255;
+	}
+	if (predtpSource.width != dtpSource.width) {
+		codePreviewHighlight[5].a = 255;
+	}
+	if (predtpSource.height != dtpSource.height) {
+		codePreviewHighlight[6].a = 255;
+	}
+	if (predtpDest.x != dtpDest.x) {
+		codePreviewHighlight[9].a = 255;
+	}
+	if (predtpDest.y != dtpDest.y) {
+		codePreviewHighlight[10].a = 255;
+	}
+	if (predtpDest.width != dtpDest.width) {
+		codePreviewHighlight[11].a = 255;
+	}
+	if (predtpDest.height != dtpDest.height) {
+		codePreviewHighlight[12].a = 255;
+	}
+	if (predtpOrigin.x != dtpOrigin.x) {
+		codePreviewHighlight[15].a = 255;
+	}
+	if (predtpOrigin.y != dtpOrigin.y) {
+		codePreviewHighlight[16].a = 255;
+	}
+	if (predtpRotation != dtpRotation) {
 		codePreviewHighlight[18].a = 255;
 	}
+}
 
+void DrawCodeDisplay() {
+	sprintf(codePreviewArray[3], "						.x = %d,", (int)dtpSource.x);
+	sprintf(codePreviewArray[4], "						.y = %d,", (int)dtpSource.y);
+	sprintf(codePreviewArray[5], "						.width = %d,", (int)dtpSource.width);
+	sprintf(codePreviewArray[6], "						.height = %d", (int)dtpSource.height);
+	sprintf(codePreviewArray[9], "						.x = %d,", (int)dtpDest.x);
+	sprintf(codePreviewArray[10], "						.y = %d,", (int)dtpDest.y);
+	sprintf(codePreviewArray[11], "						.width = %d,", (int)dtpDest.width);
+	sprintf(codePreviewArray[12], "						.height = %d", (int)dtpDest.height);
+	sprintf(codePreviewArray[15], "						.x = %d,", (int)dtpOrigin.x);
+	sprintf(codePreviewArray[16], "						.y = %d,", (int)dtpOrigin.y);
+	sprintf(codePreviewArray[18], "			%d, // Rotation", (int)dtpRotation);
+
+	for(i = 0; i < 21; i += 1) {
+		if (codePreviewHighlight[i].a > 0) {
+			codePreviewHighlight[i].a -= 5;
+		}
+	}
+
+	for(int b = 0; b < 21; b += 1) {
+		Color tempColor = BLACK;
+		if((b > 1) && (b < 8)) { tempColor = RED; }
+		else if((b > 7) && (b < 14)) { tempColor = DARKGREEN; }
+		else if((b > 13) && (b < 18)) { tempColor = BLUE; }
+		else if(b == 18) { tempColor = DARKPURPLE; }
+		DrawRectangle(
+				0 + 20,
+				elementCode.y + 15 + ((fontSize + 1) * b) - 1,
+				previewElementResult.texture.width,
+				fontSize+1,
+				codePreviewHighlight[b]
+				);
+		DrawTextEx(
+				sourceCodeFont,
+				codePreviewArray[b],
+				(Vector2) {
+				.x = elementCode.x + 15,
+				.y = elementCode.y + 15 + ((fontSize + 1) * b)
+				},
+				fontSize,
+				fontSpacing,
+				tempColor
+				);
+	}
 };
-void DrawCodeDisplay() {};
+
 void DrawOutput() {
 	BeginTextureMode(previewElementPre);
 	ClearBackground(RAYWHITE);
@@ -688,49 +848,5 @@ void DrawOutput() {
 			0,
 			WHITE
 			);
-	//elementCode
 
-	sprintf(codePreviewArray[3], "						.x = %d,", (int)dtpSource.x);
-	sprintf(codePreviewArray[4], "						.y = %d,", (int)dtpSource.y);
-	sprintf(codePreviewArray[5], "						.width = %d,", (int)dtpSource.width);
-	sprintf(codePreviewArray[6], "						.height = %d", (int)dtpSource.height);
-	sprintf(codePreviewArray[9], "						.x = %d,", (int)dtpDest.x);
-	sprintf(codePreviewArray[10], "						.y = %d,", (int)dtpDest.y);
-	sprintf(codePreviewArray[11], "						.width = %d,", (int)dtpDest.width);
-	sprintf(codePreviewArray[12], "						.height = %d", (int)dtpDest.height);
-	sprintf(codePreviewArray[15], "						.x = %d,", (int)dtpOrigin.x);
-	sprintf(codePreviewArray[16], "						.y = %d,", (int)dtpOrigin.y);
-	sprintf(codePreviewArray[18], "			%d, // Rotation", (int)dtpRotation);
-
-	for(i = 0; i < 21; i += 1) {
-		if (codePreviewHighlight[i].a > 0) {
-			codePreviewHighlight[i].a -= 5;
-		}
-	}
-
-	for(int b = 0; b < 21; b += 1) {
-		Color tempColor = BLACK;
-		if((b > 1) && (b < 8)) { tempColor = RED; }
-		else if((b > 7) && (b < 14)) { tempColor = DARKGREEN; }
-		else if((b > 13) && (b < 18)) { tempColor = BLUE; }
-		else if(b == 18) { tempColor = DARKPURPLE; }
-		DrawRectangle(
-				0 + 20,
-				elementCode.y + 15 + ((fontSize + 1) * b) - 1,
-				previewElementResult.texture.width,
-				fontSize+1,
-				codePreviewHighlight[b]
-				);
-		DrawTextEx(
-				sourceCodeFont,
-				codePreviewArray[b],
-				(Vector2) {
-				.x = elementCode.x + 15,
-				.y = elementCode.y + 15 + ((fontSize + 1) * b)
-				},
-				fontSize,
-				fontSpacing,
-				tempColor
-				);
-	}
 };
