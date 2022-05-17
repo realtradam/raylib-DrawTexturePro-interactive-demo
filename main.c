@@ -506,7 +506,6 @@ void DrawOutput() {
 	}
 	if (sourceRect.height < 0) {
 		sourceRect.height *= -1;
-
 	}
 	DrawRectangleLinesEx(
 			(Rectangle) {
@@ -621,6 +620,16 @@ void DrawOutput() {
 	}
 	DrawRectangleLinesEx(
 			(Rectangle) {
+			.x = destRect.x - dtpOrigin.x,
+			.y = destRect.y - dtpOrigin.y,
+			.width = destRect.width,
+			.height = destRect.height,
+			},
+			1,
+			BLUE
+			);
+	DrawRectangleLinesEx(
+			(Rectangle) {
 			.x = destRect.x,
 			.y = destRect.y,
 			.width = destRect.width,
@@ -629,11 +638,28 @@ void DrawOutput() {
 			2,
 			DARKGREEN
 			);
+	DrawCircle(
+			destRect.x - dtpOrigin.x,
+			destRect.y - dtpOrigin.y,
+			5,
+			BLUE
+			);
+	DrawTextEx(
+			sourceCodeFont,
+			"Origin",
+			(Vector2) {
+			.x = destRect.x - 48 - dtpOrigin.x,
+			.y = destRect.y - fontSize + 16 - dtpOrigin.y
+			},
+			fontSize,
+			fontSpacing,
+			BLUE
+			);
 	DrawTextEx(
 			sourceCodeFont,
 			"Dest",
 			(Vector2) {
-			.x = destRect.x,
+			.x = destRect.x + 8,
 			.y = destRect.y - fontSize + 1
 			},
 			fontSize,
@@ -664,16 +690,16 @@ void DrawOutput() {
 			);
 	//elementCode
 
-	sprintf(codePreviewArray[3], "						.x = %d.0f,", (int)dtpSource.x);
-	sprintf(codePreviewArray[4], "						.y = %d.0f,", (int)dtpSource.y);
-	sprintf(codePreviewArray[5], "						.width = %d.0f,", (int)dtpSource.width);
-	sprintf(codePreviewArray[6], "						.height = %d.0f", (int)dtpSource.height);
-	sprintf(codePreviewArray[9], "						.x = %d.0f,", (int)dtpDest.x);
-	sprintf(codePreviewArray[10], "						.y = %d.0f,", (int)dtpDest.y);
-	sprintf(codePreviewArray[11], "						.width = %d.0f,", (int)dtpDest.width);
-	sprintf(codePreviewArray[12], "						.height = %d.0f", (int)dtpDest.height);
-	sprintf(codePreviewArray[15], "						.x = %d.0f,", (int)dtpOrigin.x);
-	sprintf(codePreviewArray[16], "						.y = %d.0f,", (int)dtpOrigin.y);
+	sprintf(codePreviewArray[3], "						.x = %d,", (int)dtpSource.x);
+	sprintf(codePreviewArray[4], "						.y = %d,", (int)dtpSource.y);
+	sprintf(codePreviewArray[5], "						.width = %d,", (int)dtpSource.width);
+	sprintf(codePreviewArray[6], "						.height = %d", (int)dtpSource.height);
+	sprintf(codePreviewArray[9], "						.x = %d,", (int)dtpDest.x);
+	sprintf(codePreviewArray[10], "						.y = %d,", (int)dtpDest.y);
+	sprintf(codePreviewArray[11], "						.width = %d,", (int)dtpDest.width);
+	sprintf(codePreviewArray[12], "						.height = %d", (int)dtpDest.height);
+	sprintf(codePreviewArray[15], "						.x = %d,", (int)dtpOrigin.x);
+	sprintf(codePreviewArray[16], "						.y = %d,", (int)dtpOrigin.y);
 	sprintf(codePreviewArray[18], "			%d, // Rotation", (int)dtpRotation);
 
 	for(i = 0; i < 21; i += 1) {
