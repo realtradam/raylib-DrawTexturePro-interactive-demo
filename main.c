@@ -28,21 +28,21 @@ const Rectangle elementSliders = {
 };
 const Rectangle elementCode = {
 	.x = 0 + elementMargin,
-	.y = (screenHeight / 3) + (elementMargin),
+	.y = (screenHeight / 3) + (elementMargin) + 8,
 	.width = (screenWidth / 3) - (elementMargin),
-	.height = ((2 * screenHeight) / 3) - (elementMargin * 2)
+	.height = ((2 * screenHeight) / 3) - (elementMargin * 2) - 8
 };
 const Rectangle elementPreRender = {
 	.x = (screenWidth / 3) + (elementMargin / 2),
-	.y = (screenHeight / 3) + elementMargin,
+	.y = (screenHeight / 3) + elementMargin + 8,
 	.width = (screenWidth / 3) - (elementMargin),
-	.height = ((2 * screenHeight) / 3) - (elementMargin * 2)
+	.height = ((2 * screenHeight) / 3) - (elementMargin * 2) - 8
 };
 const Rectangle elementRender = {
 	.x = ((2 * screenWidth) / 3),
-	.y = (screenHeight / 3) + elementMargin,
+	.y = (screenHeight / 3) + elementMargin + 8,
 	.width = (screenWidth / 3) - (elementMargin),
-	.height = ((2 * screenHeight) / 3) - (elementMargin * 2)
+	.height = ((2 * screenHeight) / 3) - (elementMargin * 2) - 8
 };
 
 Font sourceCodeFont;
