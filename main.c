@@ -110,6 +110,8 @@ void CheckDifference();
 void DrawCodeDisplay();
 void DrawOutput();
 
+void HandleDroppedFiles();
+
 int main()
 {
 	InitWindow(screenWidth, screenHeight, "DrawTexturePro Example");
@@ -138,6 +140,8 @@ int main()
 
 	while (!WindowShouldClose())
 	{
+		HandleDroppedFiles();
+
 		BeginDrawing();
 		ClearBackground(RAYWHITE);
 
@@ -850,3 +854,17 @@ void DrawOutput() {
 			);
 
 };
+
+void HandleDroppedFiles()
+{
+	if (IsFileDropped()) {
+		FilePathList droppedFiles = LoadDroppedFiles();
+		Texture2D tmp = LoadTexture(droppedFiles.paths[0]);
+		if (tmp.id != 0) {
+			// Texture loaded successfully
+			UnloadTexture(sampleSprite);
+			sampleSprite = tmp;
+		}
+		UnloadDroppedFiles(droppedFiles);
+	}
+}
