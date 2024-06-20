@@ -116,12 +116,14 @@ int main()
 {
 	InitWindow(screenWidth, screenHeight, "DrawTexturePro Example");
 	SetTargetFPS(60);
-	GuiLoadStyle("assets/lavanda.rgs");
+	GuiLoadStyle("assets/style_lavanda.rgs");
 
 	sampleSprite = LoadTexture("assets/kenney.png");
 
 	sourceCodeFont = LoadFontEx("assets/LiberationMono-Regular.ttf", fontSize, 0, 250);
 	GuiSetFont(sourceCodeFont);
+	GuiSetStyle(DEFAULT, TEXT_SIZE, fontSize);
+	GuiSetStyle(DEFAULT, TEXT_SPACING, fontSpacing);
 
 	for(i = 0; i < 21; i += 1) {
 		codePreviewHighlight[i] = BEIGE;
