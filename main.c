@@ -91,8 +91,8 @@ Vector2 dtpOrigin = {
 	.x = 0,
 	.y = 0
 };
-int predtpRotation;
-int dtpRotation = 0;
+float predtpRotation;
+float dtpRotation = 0;
 
 const int gridSize = 20;
 const int gridCenter = 120;
@@ -330,7 +330,7 @@ void DrawUI() {
 			);
 
 	sprintf(buffer, "%d", (int)dtpSource.x),
-		dtpSource.x = GuiSlider(
+		GuiSlider(
 				(Rectangle) {
 				.x = elementSliders.x + xOffset,
 				.y = elementSliders.y + yOffset,
@@ -339,12 +339,12 @@ void DrawUI() {
 				},
 				"x",
 				buffer,
-				dtpSource.x,
+				&dtpSource.x,
 				-192,
 				192
 				);
 	sprintf(buffer, "%d", (int)dtpSource.y),
-		dtpSource.y = GuiSlider(
+		GuiSlider(
 				(Rectangle) {
 				.x = elementSliders.x + xOffset,
 				.y = elementSliders.y + yOffset + sliderHeight + sliderSpacing,
@@ -353,12 +353,12 @@ void DrawUI() {
 				},
 				"y",
 				buffer,
-				dtpSource.y,
+				&dtpSource.y,
 				-192,
 				192
 				);
 	sprintf(buffer, "%d", (int)dtpSource.width),
-		dtpSource.width = GuiSlider(
+		GuiSlider(
 				(Rectangle) {
 				.x = elementSliders.x + xOffset,
 				.y = elementSliders.y + yOffset + ((sliderHeight + sliderSpacing) * 2),
@@ -367,12 +367,12 @@ void DrawUI() {
 				},
 				"Width",
 				buffer,
-				dtpSource.width,
+				&dtpSource.width,
 				-192,
 				192
 				);
 	sprintf(buffer, "%d", (int)dtpSource.height),
-		dtpSource.height = GuiSlider(
+		GuiSlider(
 				(Rectangle) {
 				.x = elementSliders.x + xOffset,
 				.y = elementSliders.y + yOffset + ((sliderHeight + sliderSpacing) * 3),
@@ -381,7 +381,7 @@ void DrawUI() {
 				},
 				"Height",
 				buffer,
-				dtpSource.height,
+				&dtpSource.height,
 				-192,
 				192
 				);
@@ -398,7 +398,7 @@ void DrawUI() {
 			"Dest"
 			);
 	sprintf(buffer, "%d", (int)dtpDest.x),
-		dtpDest.x = GuiSlider(
+		GuiSlider(
 				(Rectangle) {
 				.x = elementSliders.x + xOffset,
 				.y = elementSliders.y + yOffset,
@@ -407,12 +407,12 @@ void DrawUI() {
 				},
 				"x",
 				buffer,
-				dtpDest.x,
+				&dtpDest.x,
 				-192,
 				192
 				);
 	sprintf(buffer, "%d", (int)dtpDest.y),
-		dtpDest.y = GuiSlider(
+		GuiSlider(
 				(Rectangle) {
 				.x = elementSliders.x + xOffset,
 				.y = elementSliders.y + yOffset + sliderHeight + sliderSpacing,
@@ -421,12 +421,12 @@ void DrawUI() {
 				},
 				"y",
 				buffer,
-				dtpDest.y,
+				&dtpDest.y,
 				-192,
 				192
 				);
 	sprintf(buffer, "%d", (int)dtpDest.width),
-		dtpDest.width = GuiSlider(
+		GuiSlider(
 				(Rectangle) {
 				.x = elementSliders.x + xOffset,
 				.y = elementSliders.y + yOffset + ((sliderHeight + sliderSpacing) * 2),
@@ -435,12 +435,12 @@ void DrawUI() {
 				},
 				"Width",
 				buffer,
-				dtpDest.width,
+				&dtpDest.width,
 				-192,
 				192
 				);
 	sprintf(buffer, "%d", (int)dtpDest.height),
-		dtpDest.height = GuiSlider(
+		GuiSlider(
 				(Rectangle) {
 				.x = elementSliders.x + xOffset,
 				.y = elementSliders.y + yOffset + ((sliderHeight + sliderSpacing) * 3),
@@ -449,7 +449,7 @@ void DrawUI() {
 				},
 				"Height",
 				buffer,
-				dtpDest.height,
+				&dtpDest.height,
 				-192,
 				192
 				);
@@ -465,7 +465,7 @@ void DrawUI() {
 			"Origin"
 			);
 	sprintf(buffer, "%d", (int)dtpOrigin.x),
-		dtpOrigin.x = GuiSlider(
+		GuiSlider(
 				(Rectangle) {
 				.x = elementSliders.x + xOffset,
 				.y = elementSliders.y + yOffset,
@@ -474,12 +474,12 @@ void DrawUI() {
 				},
 				"x",
 				buffer,
-				dtpOrigin.x,
+				&dtpOrigin.x,
 				-192,
 				192
 				);
 	sprintf(buffer, "%d", (int)dtpOrigin.y),
-		dtpOrigin.y = GuiSlider(
+		GuiSlider(
 				(Rectangle) {
 				.x = elementSliders.x + xOffset,
 				.y = elementSliders.y + yOffset + sliderHeight + sliderSpacing,
@@ -488,7 +488,7 @@ void DrawUI() {
 				},
 				"y",
 				buffer,
-				dtpOrigin.y,
+				&dtpOrigin.y,
 				-192,
 				192
 				);
@@ -505,7 +505,7 @@ void DrawUI() {
 					"Rotation"
 					);
 	sprintf(buffer, "%d", (int)dtpRotation),
-		dtpRotation = GuiSlider(
+		GuiSlider(
 				(Rectangle) {
 				.x = elementSliders.x + xOffset,
 				.y = elementSliders.y + yOffset,
@@ -514,7 +514,7 @@ void DrawUI() {
 				},
 				"",
 				buffer,
-				dtpRotation,
+				&dtpRotation,
 				-360,
 				360
 				);
