@@ -8,6 +8,10 @@
 #include "raylib.h"
 #include <stdio.h>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
+
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 
@@ -112,6 +116,24 @@ void DrawOutput();
 
 void HandleDroppedFiles();
 
+void UpdateDrawFrame()
+{
+	HandleDroppedFiles();
+
+	BeginDrawing();
+	ClearBackground(RAYWHITE);
+
+	DrawElementBorders();
+	SetupDifference();
+	DrawUI();
+	ResolveMouseState();
+	DrawCodeDisplay();
+	CheckDifference();
+	DrawOutput();
+
+	EndDrawing();
+}
+
 int main()
 {
 	InitWindow(screenWidth, screenHeight, "DrawTexturePro Example");
@@ -139,24 +161,14 @@ int main()
 			elementRender.height - 20
 			);
 
-
+#ifdef __EMSCRIPTEN__
+	emscripten_set_main_loop(UpdateDrawFrame, 0, 1);
+#else
 	while (!WindowShouldClose())
 	{
-		HandleDroppedFiles();
-
-		BeginDrawing();
-		ClearBackground(RAYWHITE);
-
-		DrawElementBorders();
-		SetupDifference();
-		DrawUI();
-		ResolveMouseState();
-		DrawCodeDisplay();
-		CheckDifference();
-		DrawOutput();
-
-		EndDrawing();
+		UpdateDrawFrame();
 	}
+#endif
 	CloseWindow();
 
 	return 0;
